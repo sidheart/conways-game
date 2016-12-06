@@ -1,3 +1,4 @@
+#include <ncurses.h>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -23,14 +24,19 @@ void Cgol::update(vector<string> board)
 {
 }
 
-void Cgol::print(vector<string> board)
+void Cgol::init()
 {
-	for(string s : board) {
-		cout << s << endl;
-	}
+	initscr();			/* Start curses mode 		  */
+	cbreak();
+	noecho();
+	keypad(stdscr, TRUE);
+	printw("Hello World !!!");	/* Print Hello World		  */
+	refresh();			/* Print it on to the real screen */
+	getch();			/* Wait for user input */
+	endwin();			/* End curses mode		  */
 }
 
 void Cgol::simulate()
 {
-	print(getBoard());
+	init();
 }
