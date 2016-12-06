@@ -32,7 +32,7 @@ void Cgol::init()
 	refresh();
 }
 
-void Cgol::drawBoard(vector<string> board)
+void Cgol::drawBoard(const vector<string>& board)
 {
 	size_t window_h, window_w;
 	getmaxyx(stdscr, window_h, window_w);
@@ -67,14 +67,34 @@ void Cgol::drawBoard(vector<string> board)
 			addch(ACS_HLINE);
 	}
 	addch(ACS_LRCORNER);
+	move(y_initial, x_initial + 1);
 	refresh();
+}
+
+void Cgol::run(vector<string>& board) {
+	int y, x, ch;
+	while(true) {
+		getyx(stdscr, y, x);
+		switch(ch = getch()) {
+			case KEY_DOWN:
+				move(y + 1, x);
+				break;
+			case KEY_UP:
+				move(y - 1, x);
+				break;
+			case KEY_RIGHT:
+				move(y, x + 2);
+				break;
+			default:
+				return;
+		}
+	}
 }
 
 void Cgol::simulate()
 {
 	init();
 	drawBoard(getBoard());
-	//getUserInput();
-	getch();
+	run(board);
 	endwin();	
 }
