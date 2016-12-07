@@ -18,8 +18,45 @@ Cgol::Cgol(size_t nrows, size_t ncols)
 	}
 }
 
+bool Cgol::isAlive(const vector<string>& board, size_t row, size_t col) {
+	if(row >= 0 && row < nrows && col >= 0 && col < ncols) {
+		return board[row][col] == '*';
+	}
+	return false;
+}
+
+int Cgol::countNeighbors(const vector<string>& board, size_t row, size_t col) {
+	int neighbors = 0;
+	for(size_t r = row - 1; r <= row + 1; r++) {
+		for(size_t c = col - 1; c <= col + 1; c++) {
+			if(r == row && c == col) continue; /* A cell is not its own neighbor */
+			neighbors += (int) isAlive(board, r, c);
+		}
+	}
+	return neighbors;
+}
+
 void Cgol::update(vector<string>& board)
 {
+	vector<string> orig_board = getBoard();
+	bool alive;
+	int neighbors;
+	for(size_t row = 0; row < nrows; row++) {
+		for(size_t col = 0; col < ncols; col++) {
+			alive = isAlive(orig_board, row, col); 
+			neighbors = countNeighbors(orig_board, row, col);
+			if(alive) {
+				if(neighbors < 2)
+					board[row][col] = ' ';
+				else if(neighbors < 4) /* 2 or 3 neighbors */
+					board[row][col] = '*';
+				else
+					board[row][col] = ' ';
+			} else if(neighbors == 3) {
+				board[row][col] = '*';
+			}
+		}
+	}
 }
 
 void Cgol::init()
@@ -93,24 +130,25 @@ void Cgol::run(vector<string>& board) {
 		drawBoard(board);
 		getyx(stdscr, y, x);
 		switch(ch = getch()) {
-			case KEY_DOWN:
+			case KEY_DOWN: /* Down arrow */
 				if(y < y_initial + nrows - 1)
 					move(y + 1, x);
 				break;
-			case KEY_UP:
+			case KEY_UP: /* Up arrow */
 				if(y > y_initial)
 					move(y - 1, x);
 				break;
-			case KEY_RIGHT:
+			case KEY_RIGHT: /* Right arrow */
 				if(x < x_initial + 2 * ncols - 1)
 					move(y, x + 2);
 				break;
-			case KEY_LEFT:
+			/*  */
+			case KEY_LEFT: /* Left arrow */
 				if(x > x_initial + 1)
 					move(y, x - 2);
 				break;
-			case KEY_ENTER:
-			case KEY_ENTER_ALT:
+			case KEY_ENTER: /* Enter on the numpad */
+			case KEY_ENTER_ALT: /* Enter on the keyboard */
 				if(board[y - y_initial][(x / 2) - (x_initial / 2) - 1] == ' ')
 					board[y - y_initial][(x / 2) - (x_initial / 2) - 1] = '*';
 				else
@@ -118,6 +156,9 @@ void Cgol::run(vector<string>& board) {
 				break;
 			case 'q':
 				return;
+			case KEY_SPACE:
+				update(board);
+				break;
 			default:
 				break;
 		}
