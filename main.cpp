@@ -4,7 +4,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	Cgol game(10, 10);
+	Cgol game(30, 30);
 	game.simulate();
 	return 0;
 }
