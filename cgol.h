@@ -2,6 +2,8 @@
 #include <string>
 #include <ncurses.h>
 
+#define KEY_ENTER_ALT 10
+
 class Cgol 
 {
 	public:
@@ -15,5 +17,5 @@ class Cgol
 	private:
 		WINDOW* win;
 		std::vector<std::string> board;	
-		size_t nrows, ncols;
+		size_t nrows, ncols, x_initial, y_initial;
 };

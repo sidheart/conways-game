@@ -24,20 +24,36 @@ void Cgol::update(vector<string>& board)
 
 void Cgol::init()
 {
-	initscr();			
+	/* Initialize the screen and set NCurses options */
+	initscr();
 	cbreak();
 	noecho();
 	keypad(stdscr, TRUE);
-	border(0, 0, 0, 0, 0, 0, 0, 0); // Draw border around screen
+	border(0, 0, 0, 0, 0, 0, 0, 0); /* Draw border around screen */
+
+	/* Calculate the coordinate pair for the top left corner of the game board */
+	size_t window_h, window_w;
+	getmaxyx(stdscr, window_h, window_w);
+	x_initial = (window_w / 2) - (ncols);
+	y_initial = (window_h / 2) - (nrows / 2);
+
+	move(y_initial, x_initial + 1);
 	refresh();
 }
 
 void Cgol::drawBoard(const vector<string>& board)
 {
+	/* Calculate the coordinate pair for the top left corner of the game board
+	   This needs to be redone each time we draw the board, as the screen size
+	   might have changed */
 	size_t window_h, window_w;
 	getmaxyx(stdscr, window_h, window_w);
-	size_t x_initial{(window_w / 2) - (ncols)};
-	size_t y_initial{(window_h / 2) - (nrows / 2)};
+	x_initial = (window_w / 2) - (ncols);
+	y_initial = (window_h / 2) - (nrows / 2);
+
+	/* Record original x and y position before drawing board */
+	unsigned int y_orig, x_orig;
+	getyx(stdscr, y_orig, x_orig);
 
 	/* Draw top border of game board */
 	move(y_initial - 1, x_initial);
@@ -67,26 +83,43 @@ void Cgol::drawBoard(const vector<string>& board)
 			addch(ACS_HLINE);
 	}
 	addch(ACS_LRCORNER);
-	move(y_initial, x_initial + 1);
+	move(y_orig, x_orig);
 	refresh();
 }
 
 void Cgol::run(vector<string>& board) {
-	int y, x, ch;
+	unsigned int y, x, ch;
 	while(true) {
+		drawBoard(board);
 		getyx(stdscr, y, x);
 		switch(ch = getch()) {
 			case KEY_DOWN:
-				move(y + 1, x);
+				if(y < y_initial + nrows - 1)
+					move(y + 1, x);
 				break;
 			case KEY_UP:
-				move(y - 1, x);
+				if(y > y_initial)
+					move(y - 1, x);
 				break;
 			case KEY_RIGHT:
-				move(y, x + 2);
+				if(x < x_initial + 2 * ncols - 1)
+					move(y, x + 2);
 				break;
-			default:
+			case KEY_LEFT:
+				if(x > x_initial + 1)
+					move(y, x - 2);
+				break;
+			case KEY_ENTER:
+			case KEY_ENTER_ALT:
+				if(board[y - y_initial][(x / 2) - (x_initial / 2) - 1] == ' ')
+					board[y - y_initial][(x / 2) - (x_initial / 2) - 1] = '*';
+				else
+					board[y - y_initial][(x / 2) - (x_initial / 2) - 1] = ' ';
+				break;
+			case 'q':
 				return;
+			default:
+				break;
 		}
 	}
 }
