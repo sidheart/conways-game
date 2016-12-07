@@ -154,6 +154,13 @@ void Cgol::run(vector<string>& board) {
 				else
 					board[y - y_initial][(x / 2) - (x_initial / 2) - 1] = ' ';
 				break;
+			case 'c':
+				for(size_t row = 0; row < nrows; row++) {
+					for(size_t col = 0; col < ncols; col++) {
+						board[row][col] = ' ';
+					}
+				}
+				break;
 			case 'q':
 				return;
 			case KEY_SPACE:
